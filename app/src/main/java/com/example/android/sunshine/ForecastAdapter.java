@@ -90,7 +90,7 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
 
       LayoutInflater inflater = LayoutInflater
                 .from(mContext);
-                
+
 
         mListItemBinding = DataBindingUtil.inflate(inflater, R.layout.forecast_list_item, viewGroup, false);;
 
@@ -135,11 +135,11 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
         mListItemBinding.textViewWeatherDayDescription.setText(description);
         mListItemBinding.textViewWeatherDayName.setText(dateString);
         mListItemBinding.textViewWeatherDayMinimumTemp.setText(SunshineWeatherUtils.formatTemperature(mContext, lowInCelsius));
-        mListItemBinding.textViewWeatherDayMinimumTemp.setText(SunshineWeatherUtils.formatTemperature(mContext, highInCelsius));
+        mListItemBinding.textViewWeatherDayMaximumTemp.setText(SunshineWeatherUtils.formatTemperature(mContext, highInCelsius));
         mListItemBinding.weatherDescription.setImageResource(SunshineWeatherUtils.getSmallArtResourceIdForWeatherCondition(weatherId));
 
 
-        forecastAdapterViewHolder.mForecastListItemBinding.tvWeatherData.setText(weatherSummary);
+       // forecastAdapterViewHolder.mForecastListItemBinding.tvWeatherData.setText(weatherSummary);
     }
 
     /**
