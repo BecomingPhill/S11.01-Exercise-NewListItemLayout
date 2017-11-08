@@ -20,6 +20,7 @@ import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,8 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
     /* The context we use to utility methods, app resources and layout inflaters */
     private final Context mContext;
     private ForecastListItemBinding mListItemBinding;
+    private static final String TAG = ForecastAdapter.class.getSimpleName();
+
 
     /*
      * Below, we've defined an interface to handle clicks on items within this Adapter. In the
@@ -137,6 +140,7 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
         mListItemBinding.textViewWeatherDayMinimumTemp.setText(SunshineWeatherUtils.formatTemperature(mContext, lowInCelsius));
         mListItemBinding.textViewWeatherDayMaximumTemp.setText(SunshineWeatherUtils.formatTemperature(mContext, highInCelsius));
         mListItemBinding.weatherDescription.setImageResource(SunshineWeatherUtils.getSmallArtResourceIdForWeatherCondition(weatherId));
+        Log.i(TAG, "This was called! ");
 
 
        // forecastAdapterViewHolder.mForecastListItemBinding.tvWeatherData.setText(weatherSummary);
@@ -151,7 +155,9 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
     @Override
     public int getItemCount() {
         if (null == mCursor) return 0;
+        Log.i(TAG, "The count is: " + mCursor.getCount());
         return mCursor.getCount();
+
     }
 
     /**
