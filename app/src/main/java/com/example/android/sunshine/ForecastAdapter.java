@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.android.sunshine.databinding.ForecastListItemBinding;
+import com.example.android.sunshine.databinding.ListItemForecastTodayBinding;
 import com.example.android.sunshine.utilities.SunshineDateUtils;
 import com.example.android.sunshine.utilities.SunshineWeatherUtils;
 
@@ -38,7 +39,12 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
     /* The context we use to utility methods, app resources and layout inflaters */
     private final Context mContext;
     private ForecastListItemBinding mListItemBinding;
+    private ListItemForecastTodayBinding mForecastTodayBinding;
     private static final String TAG = ForecastAdapter.class.getSimpleName();
+    public static final int VIEW_TYPE_TODAY = 453;
+    public static final int VIEW_TYPE_FUTURE_DAY = 467;
+    private boolean USE_TODAY = false;
+
 
 
     /*
@@ -93,12 +99,41 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
 
       LayoutInflater inflater = LayoutInflater
                 .from(mContext);
+        int layoutId;
 
+        switch (viewType) {
 
-        mListItemBinding = DataBindingUtil.inflate(inflater, R.layout.forecast_list_item, viewGroup, false);;
+//          COMPLETED (12) If the view type of the layout is today, use today layout
+            case VIEW_TYPE_TODAY: {
+                layoutId = R.layout.list_item_forecast_today;
+                break;
+            }
 
+//          COMPLETED (13) If the view type of the layout is future day, use future day layout
+            case VIEW_TYPE_FUTURE_DAY: {
+                layoutId = R.layout.forecast_list_item;
+                break;
+            }
+
+//          COMPLETED (14) Otherwise, throw an IllegalArgumentException
+            default:
+                throw new IllegalArgumentException("Invalid view type, value of " + viewType);
+        }
+        mListItemBinding = DataBindingUtil.inflate(inflater, layoutId, viewGroup, false);
         return new ForecastAdapterViewHolder(mListItemBinding);
-    }
+
+
+        }
+
+
+
+
+     //
+
+
+
+
+
 
     /**
      * OnBindViewHolder is called by the RecyclerView to display the data at the specified
@@ -115,6 +150,30 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
         mCursor.moveToPosition(position);
 
 //      TODO (7) Replace the single TextView with Views to display all of the weather info
+        int weatherId = mCursor.getInt(MainActivity.INDEX_WEATHER_CONDITION_ID);
+        int weatherImageId;
+
+        int viewType = getItemViewType(position);
+
+        switch (viewType) {
+//          COMPLETED (15) If the view type of the layout is today, display a large icon
+            case VIEW_TYPE_TODAY:
+                weatherImageId = SunshineWeatherUtils
+                        .getLargeArtResourceIdForWeatherCondition(weatherId);
+                break;
+
+//          COMPLETED (16) If the view type of the layout is today, display a small icon
+            case VIEW_TYPE_FUTURE_DAY:
+                weatherImageId = SunshineWeatherUtils
+                        .getSmallArtResourceIdForWeatherCondition(weatherId);
+                break;
+
+//          COMPLETED (17) Otherwise, throw an IllegalArgumentException
+            default:
+                throw new IllegalArgumentException("Invalid view type, value of " + viewType);
+        }
+
+
 
         /*******************
          * Weather Summary *
@@ -124,7 +183,7 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
          /* Get human readable string using our utility method */
         String dateString = SunshineDateUtils.getFriendlyDateString(mContext, dateInMillis, false);
          /* Use the weatherId to obtain the proper description */
-        int weatherId = mCursor.getInt(MainActivity.INDEX_WEATHER_CONDITION_ID);
+        //int weatherId = mCursor.getInt(MainActivity.INDEX_WEATHER_CONDITION_ID);
         String description = SunshineWeatherUtils.getStringForWeatherCondition(mContext, weatherId);
          /* Read high temperature from the cursor (in degrees celsius) */
         double highInCelsius = mCursor.getDouble(MainActivity.INDEX_WEATHER_MAX_TEMP);
@@ -139,7 +198,13 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
         mListItemBinding.textViewWeatherDayName.setText(dateString);
         mListItemBinding.textViewWeatherDayMinimumTemp.setText(SunshineWeatherUtils.formatTemperature(mContext, lowInCelsius));
         mListItemBinding.textViewWeatherDayMaximumTemp.setText(SunshineWeatherUtils.formatTemperature(mContext, highInCelsius));
-        mListItemBinding.weatherDescription.setImageResource(SunshineWeatherUtils.getSmallArtResourceIdForWeatherCondition(weatherId));
+        mListItemBinding.weatherDescription.setImageResource(SunshineWeatherUtils.getSmallArtResourceIdForWeatherCondition(weatherImageId));
+
+        mForecastTodayBinding.textViewWeatherDayDescription.setText(description);
+        mForecastTodayBinding.textViewWeatherDayName.setText(dateString);
+        mForecastTodayBinding.textViewWeatherDayMinimumTemp.setText(SunshineWeatherUtils.formatTemperature(mContext, lowInCelsius));
+        mForecastTodayBinding.textViewWeatherDayMaximumTemp.setText(SunshineWeatherUtils.formatTemperature(mContext, highInCelsius));
+
         Log.i(TAG, "This was called! ");
 
 
@@ -158,6 +223,15 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
         Log.i(TAG, "The count is: " + mCursor.getCount());
         return mCursor.getCount();
 
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(mContext.getResources().getBoolean(R.bool.use_today_layout) && position == 0){
+        return VIEW_TYPE_TODAY;}
+        else{
+            return VIEW_TYPE_FUTURE_DAY;
+        }
     }
 
     /**
@@ -182,6 +256,8 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
 //      TODO (4) Replace the weatherSummary TextView with individual weather detail TextViews
         //final TextView weatherSummary;
        private ForecastListItemBinding mForecastListItemBinding;
+       private ListItemForecastTodayBinding mItemForecastTodayBinding;
+
 
 
 
@@ -192,6 +268,9 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
 
         ForecastAdapterViewHolder(ForecastListItemBinding binding) {
             super(binding.getRoot());
+
+
+
             mForecastListItemBinding = binding;
 
 //          TODO (6) Get references to all new views and delete this line
